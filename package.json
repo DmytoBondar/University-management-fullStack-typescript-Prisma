@@ -1,0 +1,18 @@
+{
+  "name": "university-management-fullstack-typescript-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-core": "npm --prefix university-management-core-service start",
+    "start-auth": "npm --prefix university-management-auth-service start",
+    "start-gateway": "npm --prefix university-management-api-gateway start",
+    "start": "concurrently \"npm run start-core\" \"npm run start-auth\" \"npm run start-gateway\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
