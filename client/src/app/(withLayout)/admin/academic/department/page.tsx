@@ -1,9 +1,5 @@
 'use client';
 
-import Actionbar from "@/components/ui/Actionbar"
-import UMBreadCrumb from "@/components/ui/UMBreadCrumb"
-import UMTable from "@/components/ui/UMTable"
-import { useAcademicFacultyQuery, useDeleteAcademicFacultyMutation } from "@/redux/api/academic/facultyApi"
 import { useDebounced } from "@/redux/hooks";
 import { Button, Input, message } from "antd"
 import { useState } from "react"
@@ -14,8 +10,12 @@ import {
     EditOutlined,
     ReloadOutlined,
 } from "@ant-design/icons";
+import { useAcademicDepartmentQuery, useDeleteAcademicDepartmentMutation } from "@/redux/api/academic/departmentApi";
+import UMTable from "@/components/ui/UMTable";
+import Actionbar from "@/components/ui/Actionbar";
+import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 
-const AcademicFaculty = () => {
+const AcademicDepartment = () => {
     const query: Record<string, any> = {}
 
     const [page, setPage] = useState<number>(1);
@@ -23,7 +23,7 @@ const AcademicFaculty = () => {
     const [sortBy, setSortBy] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [deleteAcademicFaculty] = useDeleteAcademicFacultyMutation();
+    const [deleteAcademicDepartment] = useDeleteAcademicDepartmentMutation();
     query['limit'] = size;
     query['sortBy'] = sortBy;
     query['sortOrder'] = sortOrder;
@@ -37,15 +37,15 @@ const AcademicFaculty = () => {
     if (!!debouncedOptions) {
         query['searchTerm'] = debouncedOptions
     }
-    const { data, isLoading } = useAcademicFacultyQuery({ ...query })
-    const academicFaculty = data?.academicfaculty;
+    const { data, isLoading } = useAcademicDepartmentQuery({ ...query })
+    const academicDepartment = data?.academicDepartment;
     const meta = data?.meta;
 
     const deleteHandler = async (id: string) => {
         message.loading("Deleting ...");
         try {
-            const res = await deleteAcademicFaculty(id)
-            if (res) {
+            const res = await deleteAcademicDepartment(id)
+            if (!!res) {
                 message.success("Successfully Deleted !")
             }
 
@@ -74,7 +74,7 @@ const AcademicFaculty = () => {
             render: function (data: any) {
                 return (
                     <>
-                        <Link href={`/admin/acadmic/faculty/edit/${data.id}`}>
+                        <Link href={`/admin/acadmic/department/edit/${data.id}`}>
                             <Button type='primary' style={{ margin: "0px 5px" }}>
                                 <EditOutlined />
                             </Button>
@@ -102,18 +102,16 @@ const AcademicFaculty = () => {
         setPage(page);
         setSize(pageSize);
     }
-
     return (
         <>
             <UMBreadCrumb
-                items={[
-                    {
-                        label: `admin`,
-                        link: `/admin`,
-                    },
-                ]}
+                items={
+                    [
+                        { label: `admin`, link: `/admin` },
+                    ]
+                }
             />
-            <Actionbar title="Academic Faculty">
+            <Actionbar title="Academic Department">
                 <Input
                     type='text'
                     size='large'
@@ -127,7 +125,7 @@ const AcademicFaculty = () => {
                             <ReloadOutlined />
                         </Button>
                     )}
-                    <Link href="/admin/academic/faculty/create">
+                    <Link href="/admin/academic/department/create">
                         <Button type='primary'>Create</Button>
                     </Link>
                 </div>
@@ -137,7 +135,7 @@ const AcademicFaculty = () => {
                 <UMTable
                     loading={isLoading}
                     columns={columns}
-                    dataSource={academicFaculty}
+                    dataSource={academicDepartment}
                     onPaginationChange={onPaginationChange}
                     onTableChange={onTableChange}
                     showPagination={true}
@@ -148,7 +146,6 @@ const AcademicFaculty = () => {
             </div>
         </>
     )
-
 }
 
-export default AcademicFaculty
+export default AcademicDepartment;
