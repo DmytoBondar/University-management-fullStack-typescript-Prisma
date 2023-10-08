@@ -1,5 +1,5 @@
 import { authkey } from '@/constants/storageKey';
-import { removeUserInfo } from '@/service/auth.service';
+import { getUserInfo, removeUserInfo } from '@/service/auth.service';
 import { Dropdown, Layout, MenuProps, Row, Button, Space, Avatar } from 'antd';
 import { useRouter } from 'next/navigation';
 const { Header: AntHeader, } = Layout;
@@ -21,10 +21,12 @@ const Header = () => {
             ),
         },
     ];
+    const { role } = getUserInfo() as any;
     return (
         <AntHeader
             style={{
                 background: "#fff",
+                textTransform: "uppercase"
             }}
         >
             <Row
@@ -34,6 +36,7 @@ const Header = () => {
                     height: "100%",
                 }}
             >
+                <p style={{ margin: '0 5px' }}>{role}</p>
                 <Dropdown menu={{ items }}>
                     <a>
                         <Space wrap size={16}>
