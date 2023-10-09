@@ -1,11 +1,11 @@
-import UMBreadCrumbs from "@/components/ui/UMBreadCrumbs";
+import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
 import { getUserInfo } from "@/service/auth.service";
 
 const FacultyPage = () => {
     const { role } = getUserInfo() as any;
     return (
         <>
-            <UMBreadCrumbs items={
+            <UMBreadCrumb items={
                 [
                     {
                         label: `${role}`,
