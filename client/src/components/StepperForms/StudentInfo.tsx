@@ -1,8 +1,13 @@
-import { Col, Row } from "antd"
-import FormInput from "../Forms/FormInput"
-import FormSelectField from "../Forms/FormSelectField"
-import { acDepartmentOptions, acSemesterOptions, departmentOptions, facultyOptions, genderOptions } from "@/constants/global"
-import UploadImage from "../Forms/UploadImage"
+"use client";
+
+import { Col, Row } from "antd";
+import FormInput from "../Forms/FormInput";
+import FormSelectField from "../Forms/FormSelectField";
+import { genderOptions } from "@/constants/global";
+import ACDepartmentField from "../Forms/ACDepartmentField";
+import ACFacultyField from "../Forms/ACFacultyField";
+import ACSemesterField from "../Forms/ACSemesterField";
+import UploadImage from "../Forms/UploadImage";
 
 const StudentInfo = () => {
     return (
@@ -12,7 +17,7 @@ const StudentInfo = () => {
                 borderRadius: "5px",
                 padding: "15px",
                 marginBottom: "10px",
-                marginTop: "10px"
+                marginTop: "10px",
             }}
         >
             <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -72,58 +77,45 @@ const StudentInfo = () => {
                         label="Password"
                     />
                 </Col>
-
                 <Col
                     className="gutter-row"
-                    span={6}
+                    span={8}
                     style={{
                         marginBottom: "10px",
                     }}
                 >
-                    <FormSelectField
-                        size="large"
+                    <ACDepartmentField
                         name="student.academicDepartment"
-                        options={acDepartmentOptions}
                         label="Academic Department"
-                        placeholder="Select"
                     />
                 </Col>
-
                 <Col
                     className="gutter-row"
-                    span={6}
+                    span={8}
                     style={{
                         marginBottom: "10px",
                     }}
                 >
-                    <FormSelectField
-                        size="large"
+                    <ACFacultyField
                         name="student.academicFaculty"
-                        options={facultyOptions}
                         label="Academic Faculty"
-                        placeholder="Select"
                     />
                 </Col>
-
                 <Col
                     className="gutter-row"
-                    span={6}
+                    span={8}
                     style={{
                         marginBottom: "10px",
                     }}
                 >
-                    <FormSelectField
-                        size="large"
+                    <ACSemesterField
                         name="student.academicSemester"
-                        options={acSemesterOptions}
                         label="Academic Semester"
-                        placeholder="Select"
                     />
                 </Col>
-
                 <Col
                     className="gutter-row"
-                    span={6}
+                    span={8}
                     style={{
                         marginBottom: "10px",
                     }}
@@ -136,19 +128,18 @@ const StudentInfo = () => {
                         placeholder="Select"
                     />
                 </Col>
-
                 <Col
                     className="gutter-row"
-                    span={6}
+                    span={8}
                     style={{
                         marginBottom: "10px",
                     }}
                 >
-                    <UploadImage />
+                    <UploadImage name="file" />
                 </Col>
             </Row>
         </div>
-    )
-}
+    );
+};
 
-export default StudentInfo
+export default StudentInfo;

@@ -14,9 +14,9 @@ import {
     ReloadOutlined,
     EyeOutlined
 } from "@ant-design/icons";
-import { useFacultiesQuery } from '@/redux/api/facultyApi';
+import { useStudentsQuery } from '@/redux/api/studentApi';
 
-const ManageFaculty = () => {
+const ManageStudent = () => {
     const query: Record<string, any> = {};
 
     const [page, setPage] = useState<number>(1);
@@ -38,8 +38,8 @@ const ManageFaculty = () => {
     if (!!debouncedTerm) {
         query['searchTerm'] = debouncedTerm
     };
-    const { data, isLoading } = useFacultiesQuery({ ...query });
-    const faculties = data?.faculties;
+    const { data, isLoading } = useStudentsQuery({ ...query });
+    const students = data?.students;
     const meta = data?.meta;
 
     const deleteHandler = async (id: string) => {
@@ -54,7 +54,7 @@ const ManageFaculty = () => {
     const columns = [
         {
             title: 'Id',
-            dataIndex: 'facultyId',
+            dataIndex: 'studentId',
             sorter: true
         },
         {
@@ -97,12 +97,12 @@ const ManageFaculty = () => {
             render: function (data: any) {
                 return (
                     <>
-                        <Link href={`/super_admin/department`}>
+                        <Link href={`/admin/manage-students/create`}>
                             <Button type='primary' style={{ margin: "5px 5px" }} onClick={() => console.log(data)}>
                                 <EyeOutlined />
                             </Button>
                         </Link>
-                        <Link href={`/super_admin/department`}>
+                        <Link href={`/admin/manage-students/edit`}>
                             <Button type='primary' style={{ margin: "5px 5px" }}>
                                 <EditOutlined />
                             </Button>
@@ -136,13 +136,10 @@ const ManageFaculty = () => {
         <>
             <UMBreadCrumb
                 items={[
-                    {
-                        label: `admin`,
-                        link: `/admin`,
-                    },
+                    { label: `admin`, link: `/admin` },
                 ]}
             />
-            <Actionbar title="Faculty List">
+            <Actionbar title="Students List">
                 <Input
                     type='text'
                     size='large'
@@ -156,7 +153,7 @@ const ManageFaculty = () => {
                             <ReloadOutlined />
                         </Button>
                     )}
-                    <Link href="/admin/manage-faculty/create">
+                    <Link href="/admin/manage-students/create">
                         <Button type='primary'>Create</Button>
                     </Link>
                 </div>
@@ -166,7 +163,7 @@ const ManageFaculty = () => {
                 <UMTable
                     loading={isLoading}
                     columns={columns}
-                    dataSource={faculties}
+                    dataSource={students}
                     onPaginationChange={onPaginationChange}
                     onTableChange={onTableChange}
                     showPagination={true}
@@ -179,4 +176,4 @@ const ManageFaculty = () => {
     )
 }
 
-export default ManageFaculty;
+export default ManageStudent;

@@ -1,51 +1,54 @@
 'use client';
 
-import Actionbar from '@/components/ui/Actionbar'
-import UMBreadCrumb from '@/components/ui/UMBreadCrumb'
-import UMTable from '@/components/ui/UMTable'
-import { Button, Input, message } from 'antd'
-import Link from 'next/link'
-import React, { useState } from 'react'
+import { useDebounced } from "@/redux/hooks";
+import { Button, Input, message } from "antd"
+import { useState } from "react"
 import dayjs from 'dayjs';
-import { useDebounced } from '@/redux/hooks'
+import Link from "next/link";
 import {
     DeleteOutlined,
     EditOutlined,
     ReloadOutlined,
-    EyeOutlined
 } from "@ant-design/icons";
-import { useFacultiesQuery } from '@/redux/api/facultyApi';
+import UMTable from "@/components/ui/UMTable";
+import Actionbar from "@/components/ui/Actionbar";
+import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
+import { useAcademicSemestersQuery, useDeleteAcademicSemesterMutation } from "@/redux/api/academic/semesterApi";
 
-const ManageFaculty = () => {
-    const query: Record<string, any> = {};
+const AcademicDepartment = () => {
+    const query: Record<string, any> = {}
 
     const [page, setPage] = useState<number>(1);
     const [size, setSize] = useState<number>(10);
     const [sortBy, setSortBy] = useState<string>("");
     const [sortOrder, setSortOrder] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>("");
-
+    const [deleteAcademicSemester] = useDeleteAcademicSemesterMutation();
     query['limit'] = size;
-    query['page'] = page;
     query['sortBy'] = sortBy;
     query['sortOrder'] = sortOrder;
+    query['page'] = page;
 
-    const debouncedTerm = useDebounced({
+    const debouncedOptions = useDebounced({
         searchQuery: searchTerm,
         delay: 600
-    });
+    })
 
-    if (!!debouncedTerm) {
-        query['searchTerm'] = debouncedTerm
-    };
-    const { data, isLoading } = useFacultiesQuery({ ...query });
-    const faculties = data?.faculties;
+    if (!!debouncedOptions) {
+        query['searchTerm'] = debouncedOptions
+    }
+    const { data, isLoading } = useAcademicSemestersQuery({ ...query })
+    const academicSemester = data?.academicSemesters;
     const meta = data?.meta;
 
     const deleteHandler = async (id: string) => {
         message.loading("Deleting ...");
         try {
-            message.success("Successfully Deleted !!");
+            const res = await deleteAcademicSemester(id)
+            if (!!res) {
+                message.success("Successfully Deleted !")
+            }
+
         } catch (error: any) {
             message.error(error.message);
         }
@@ -53,35 +56,19 @@ const ManageFaculty = () => {
 
     const columns = [
         {
-            title: 'Id',
-            dataIndex: 'facultyId',
-            sorter: true
+            title: 'title',
+            dataIndex: 'title',
+            key: 'title',
         },
         {
-            title: 'Name',
-            render: function (data: Record<string, any>) {
-                const fullName = `${data?.firstName} ${data?.middleName} ${data?.lastName}`
-                return <>{fullName}</>
-            }
+            title: 'Start Month',
+            dataIndex: 'startMonth',
+            key: 'startMonth',
         },
         {
-            title: 'Email',
-            dataIndex: 'email'
-        },
-        {
-            title: 'Department',
-            dataIndex: 'managementDepartment',
-            render: function (data: any) {
-                return <>{data?.title}</>
-            }
-        },
-        {
-            title: 'Designation',
-            dataIndex: 'designation'
-        },
-        {
-            title: 'Contact No',
-            dataIndex: 'contactNo',
+            title: 'End Month',
+            dataIndex: 'endMonth',
+            key: 'endMonth',
         },
         {
             title: 'createdAt',
@@ -94,20 +81,16 @@ const ManageFaculty = () => {
         },
         {
             title: 'Action',
+            key: 'action',
             render: function (data: any) {
                 return (
                     <>
-                        <Link href={`/super_admin/department`}>
-                            <Button type='primary' style={{ margin: "5px 5px" }} onClick={() => console.log(data)}>
-                                <EyeOutlined />
-                            </Button>
-                        </Link>
-                        <Link href={`/super_admin/department`}>
-                            <Button type='primary' style={{ margin: "5px 5px" }}>
+                        <Link href={`/admin/acadmic/semesters/edit/${data.id}`}>
+                            <Button type='primary' style={{ margin: "0px 5px" }}>
                                 <EditOutlined />
                             </Button>
                         </Link>
-                        <Button onClick={() => deleteHandler(data.id)} type='primary' style={{ margin: "5px 5px" }} danger>
+                        <Button onClick={() => deleteHandler(data.id)} type='primary' style={{ margin: "0px 5px" }} danger>
                             <DeleteOutlined />
                         </Button>
                     </>
@@ -116,33 +99,30 @@ const ManageFaculty = () => {
         },
 
     ];
-
+    const resetFilters = () => {
+        setSearchTerm("");
+        setSortBy("");
+        setSortOrder("");
+    }
     const onTableChange = (pagination: any, filter: any, sorter: any) => {
         const { order, field } = sorter;
         setSortBy(field as string);
         setSortOrder(order === 'ascend' ? 'asc' : 'desc')
     }
-
     const onPaginationChange = (page: number, pageSize: number) => {
         setPage(page);
         setSize(pageSize);
     }
-    const resetFilters = () => {
-        setSortBy("");
-        setSearchTerm("");
-        setSortOrder("");
-    }
     return (
         <>
             <UMBreadCrumb
-                items={[
-                    {
-                        label: `admin`,
-                        link: `/admin`,
-                    },
-                ]}
+                items={
+                    [
+                        { label: `admin`, link: `/admin` },
+                    ]
+                }
             />
-            <Actionbar title="Faculty List">
+            <Actionbar title="Academic Department">
                 <Input
                     type='text'
                     size='large'
@@ -156,7 +136,7 @@ const ManageFaculty = () => {
                             <ReloadOutlined />
                         </Button>
                     )}
-                    <Link href="/admin/manage-faculty/create">
+                    <Link href="/admin/academic/semesters/create">
                         <Button type='primary'>Create</Button>
                     </Link>
                 </div>
@@ -166,7 +146,7 @@ const ManageFaculty = () => {
                 <UMTable
                     loading={isLoading}
                     columns={columns}
-                    dataSource={faculties}
+                    dataSource={academicSemester}
                     onPaginationChange={onPaginationChange}
                     onTableChange={onTableChange}
                     showPagination={true}
@@ -179,4 +159,4 @@ const ManageFaculty = () => {
     )
 }
 
-export default ManageFaculty;
+export default AcademicDepartment;

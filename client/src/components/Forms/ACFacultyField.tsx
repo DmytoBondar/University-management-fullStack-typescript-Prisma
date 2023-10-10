@@ -1,5 +1,6 @@
+'use client'
 import { useAcademicFacultyQuery } from "@/redux/api/academic/facultyApi";
-import FormSelectField, { SelectOption } from "./FormSelectField";
+import FormSelectField, { SelectOptions } from "./FormSelectField";
 
 type ACFacultyFieldProps = {
   name: string;
@@ -7,7 +8,7 @@ type ACFacultyFieldProps = {
 };
 
 const ACFacultyField = ({ name, label }: ACFacultyFieldProps) => {
-  const { data, isLoading } = useAcademicFacultyQuery({
+  const { data } = useAcademicFacultyQuery({
     limit: 100,
     page: 1,
   });
@@ -23,7 +24,7 @@ const ACFacultyField = ({ name, label }: ACFacultyFieldProps) => {
     <FormSelectField
       name={name}
       label={label}
-      options={acFacultyOptions as SelectOption[]}
+      options={acFacultyOptions as SelectOptions[]}
     />
   )
 };

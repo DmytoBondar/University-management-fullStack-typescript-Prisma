@@ -7,13 +7,13 @@ type ACFacultyFieldProps = {
   label: string;
 };
 
-const ACFacultyField = ({ name, label }: ACFacultyFieldProps) => {
+const ACDepartmentField = ({ name, label }: ACFacultyFieldProps) => {
   const { data, isLoading } = useAcademicDepartmentQuery({
     limit: 100,
     page: 1,
   });
-  const academicFaculties: any[] = data?.academicDepartment;
-  const acFacultyOptions = academicFaculties?.map((acFaculty) => {
+  const academicDepartment: any[] = data?.academicDepartment;
+  const acDepartmentOptions = academicDepartment?.map((acFaculty) => {
     return {
       label: acFaculty?.title,
       value: acFaculty?.id,
@@ -24,9 +24,9 @@ const ACFacultyField = ({ name, label }: ACFacultyFieldProps) => {
     <FormSelectField
       name={name}
       label={label}
-      options={acFacultyOptions as SelectOptions[]}
+      options={acDepartmentOptions as SelectOptions[]}
     />
   )
 };
 
-export default ACFacultyField;
+export default ACDepartmentField;
