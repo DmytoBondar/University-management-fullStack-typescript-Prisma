@@ -1,129 +1,225 @@
 "use client";
-
-import ACSemesterField from "@/components/Forms/ACSemesterField";
-import Form from "@/components/Forms/Form";
-import FormDatePicker from "@/components/Forms/FormDatePicker";
-import FormInput from "@/components/Forms/FormInput";
-import FormSelectField from "@/components/Forms/FormSelectField";
-import Actionbar from "@/components/ui/Actionbar";
-import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
-import { semesterRegistrationStatus } from "@/constants/global";
 import {
-  useSemesterRegistrationQuery,
-  useUpdateSemesterRegistrationsMutation,
-} from "@/redux/api/semesterRegistrationApi";
-import { Button, Col, Row, message } from "antd";
+  DeleteOutlined,
+  EditOutlined,
+  ReloadOutlined,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import UMBreadCrumb from "@/components/ui/UMBreadCrumb";
+import UMTable from "@/components/ui/UMTable";
+
+import { Button, Input, Tooltip, message } from "antd";
+import Link from "next/link";
+import { useState } from "react";
+import { useDebounced } from "@/redux/hooks";
 import dayjs from "dayjs";
+import {
+  useDeleteSemesterRegistrationsMutation,
+  useSemesterRegistrationsQuery,
+  useStartNewSemesterMutation,
+} from "@/redux/api/semesterRegistrationApi";
+import Actionbar from "@/components/ui/Actionbar";
 
-const EditSemesterRegistration = ({ params }: { params: any }) => {
-  const { id } = params;
+const SemesterRegistrationPage = () => {
+  const query: Record<string, any> = {};
 
-  const { data, isLoading } = useSemesterRegistrationQuery(id);
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [deleteSemesterRegistrations] =
+    useDeleteSemesterRegistrationsMutation();
 
-  const [updateSemesterRegistration] = useUpdateSemesterRegistrationsMutation();
+  const [startNewSemester] = useStartNewSemesterMutation();
 
-  const updateOnSubmit = async (values: any) => {
-    const tempObject = { ...values };
-    tempObject["startDate"] = dayjs(tempObject["startDate"]).toISOString();
-    tempObject["endDate"] = dayjs(tempObject["endDate"]).toISOString();
-    tempObject["minCredit"] = Number(tempObject["minCredit"]);
-    tempObject["maxCredit"] = Number(tempObject["maxCredit"]);
-    message.loading("Updating....");
+  query["limit"] = size;
+  query["page"] = page;
+  query["sortBy"] = sortBy;
+  query["sortOrder"] = sortOrder;
+
+  const debouncedTerm = useDebounced({
+    searchQuery: searchTerm,
+    delay: 600,
+  });
+
+  if (!!debouncedTerm) {
+    query["searchTerm"] = debouncedTerm;
+  }
+  const { data, isLoading } = useSemesterRegistrationsQuery({ ...query });
+
+  const semesterRegistrations = data?.semesterRegistrations;
+  const meta = data?.meta;
+
+  const handleStartSemester = async (id: string) => {
     try {
-      const res = await updateSemesterRegistration({
-        id,
-        body: tempObject,
-      }).unwrap();
-      if (res?.id) {
-        message.success("Updated Semester registration successfully");
-      }
-    } catch (error: any) {
-      message.error(error.message);
+      const res = await startNewSemester(id).unwrap();
+      message.success(res);
+    } catch (err: any) {
+      message.error(err?.message);
     }
   };
 
-  const statusOptions = semesterRegistrationStatus
-    ?.map((status) => {
-      return {
-        label: status,
-        value: status,
-        disabled: false,
-      };
-    })
-    .map((el) => {
-      if (data?.status === "UPCOMING") {
-        if (el.value === "ENDED") {
-          el.disabled = true;
-        }
-      } else if (data?.status === "ONGOING") {
-        if (el.value === "UPCOMING") {
-          el.disabled = true;
-        }
-      } else if (data?.status === "ENDED") {
-        if (el.value === "UPCOMING" || el.value === "ONGOING") {
-          el.disabled = true;
-        }
+  const deleteHandler = async (id: string) => {
+    message.loading("Deleting.....");
+    try {
+      const res = await deleteSemesterRegistrations(id);
+      if (res) {
+        message.success("Semester Registration Deleted successfully");
       }
-      return el;
-    });
+    } catch (err: any) {
+      message.error(err.message);
+    }
+  };
 
-  const defaultValues = {
-    startDate: data?.startDate || "",
-    endDate: data?.endDate || "",
-    academicSemesterId: data?.academicSemester?.id || "",
-    minCredit: data?.minCredit || "",
-    maxCredit: data?.maxCredit || "",
-    status: data?.status || "",
+  const columns = [
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      render: function (data: any) {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+      },
+      sorter: true,
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      render: function (data: any) {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+      },
+      sorter: true,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      sorter: true,
+    },
+    {
+      title: "Academic semester",
+      dataIndex: "academicSemester",
+      sorter: true,
+      render: function (data: any) {
+        return <>{data?.title}</>;
+      },
+    },
+    {
+      title: "CreatedAt",
+      dataIndex: "createdAt",
+      render: function (data: any) {
+        return data && dayjs(data).format("MMM D, YYYY hh:mm A");
+      },
+      sorter: true,
+    },
+    {
+      title: "Action",
+      render: function (data: any) {
+        return (
+          <>
+            <Link href={`/admin/semester-registration/edit/${data?.id}`}>
+              <Button
+                style={{
+                  margin: "0px 5px",
+                }}
+                type="primary"
+              >
+                <EditOutlined />
+              </Button>
+            </Link>
+            {data?.status === "ENDED" && (
+              <Tooltip title="Start Semester" placement="bottom">
+                <Button
+                  type="primary"
+                  onClick={() => handleStartSemester(data?.id)}
+                  style={{
+                    margin: "0px 5px",
+                  }}
+                >
+                  <PlayCircleOutlined />
+                </Button>
+              </Tooltip>
+            )}
+            <Button
+              onClick={() => deleteHandler(data?.id)}
+              type="primary"
+              danger
+            >
+              <DeleteOutlined />
+            </Button>
+          </>
+        );
+      },
+    },
+  ];
+
+  const onPaginationChange = (page: number, pageSize: number) => {
+    console.log("Page:", page, "PageSize:", pageSize);
+    setPage(page);
+    setSize(pageSize);
+  };
+  const onTableChange = (pagination: any, filter: any, sorter: any) => {
+    const { order, field } = sorter;
+    setSortBy(field as string);
+    setSortOrder(order === "ascend" ? "asc" : "desc");
+  };
+
+  const resetFilters = () => {
+    setSortBy("");
+    setSortOrder("");
+    setSearchTerm("");
   };
 
   return (
-    <>
+    <div>
       <UMBreadCrumb
         items={[
-          { label: "admin", link: "/admin" },
           {
-            label: "semester-registration",
-            link: "/admin/semester-registration",
+            label: "admin",
+            link: "/admin",
           },
         ]}
       />
-      <Actionbar title="Edit semester registration"></Actionbar>
-      <Form submitHandler={updateOnSubmit} defaultValues={defaultValues}>
-        <Row gutter={{ xs: 24, xl: 8, lg: 8, md: 24 }}>
-          <Col span={8} style={{ margin: "10px 0" }}>
-            <div style={{ margin: "10px 0px" }}>
-              <FormDatePicker name="startDate" label="start date" />
-            </div>
-            <div style={{ margin: "10px 0px" }}>
-              <FormDatePicker name="endDate" label="end date" />
-            </div>
-            <div style={{ margin: "10px 0px" }}>
-              <ACSemesterField
-                name="academicSemesterId"
-                label="Academic semester"
-              />
-            </div>
-            <div style={{ margin: "10px 0px" }}>
-              <FormInput type="number" name="minCredit" label="min credit" />
-            </div>
 
-            <div style={{ margin: "10px 0px" }}>
-              <FormInput type="number" name="maxCredit" label="max credit" />
-            </div>
+      <Actionbar title="Semester Registration List">
+        <Input
+          type="text"
+          size="large"
+          placeholder="Search..."
+          style={{
+            width: "20%",
+          }}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+        />
+        <div>
+          <Link href="/admin/semester-registration/create">
+            <Button type="primary">Create</Button>
+          </Link>
+          {(!!sortBy || !!sortOrder || !!searchTerm) && (
+            <Button
+              onClick={resetFilters}
+              type="primary"
+              style={{ margin: "0px 5px" }}
+            >
+              <ReloadOutlined />
+            </Button>
+          )}
+        </div>
+      </Actionbar>
 
-            <div style={{ margin: "10px 0px" }}>
-              <FormSelectField
-                options={statusOptions}
-                name="status"
-                label="status"
-              />
-            </div>
-          </Col>
-        </Row>
-        <Button htmlType="submit">Update</Button>
-      </Form>
-    </>
+      <UMTable
+        loading={isLoading}
+        columns={columns}
+        dataSource={semesterRegistrations}
+        pageSize={size}
+        totalPages={meta?.total}
+        showSizeChanger={true}
+        onPaginationChange={onPaginationChange}
+        onTableChange={onTableChange}
+        showPagination={true}
+      />
+    </div>
   );
 };
 
-export default EditSemesterRegistration;
+export default SemesterRegistrationPage;

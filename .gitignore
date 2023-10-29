@@ -1,5 +1,6 @@
-/university-management-api-gateway
-/university-management-auth-service
-/university-management-core-service
+/servers/university-management-api-gateway
+/servers/university-management-auth-service
+/servers/university-management-core-service
+/servers
 /node_modules
 package-lock.json
