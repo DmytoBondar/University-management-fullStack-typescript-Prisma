@@ -119,5 +119,9 @@ export const monthOptions = months.map((data) => {
     }
 })
 
+export const semesterRegistrationStatus = ["UPCOMING", "ONGOING", "ENDED"];
 
-
+export enum ExamType {
+  FINAL = "FINAL",
+  MIDTERM = "MIDTERM",
+}

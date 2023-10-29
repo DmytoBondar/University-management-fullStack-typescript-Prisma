@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start-core": "npm --prefix university-management-core-service start",
-    "start-auth": "npm --prefix university-management-auth-service start",
-    "start-gateway": "npm --prefix university-management-api-gateway start",
+    "start-core": "npm --prefix servers/university-management-core-service start",
+    "start-auth": "npm --prefix servers/university-management-auth-service start",
+    "start-gateway": "npm --prefix servers/university-management-api-gateway start",
     "start": "concurrently \"npm run start-core\" \"npm run start-auth\" \"npm run start-gateway\""
   },
   "author": "",

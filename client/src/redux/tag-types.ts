@@ -7,6 +7,10 @@ export enum tagTypes {
     academicFaculty = 'academic-faculty',
     academicDepartment = 'academic-department',
     academicSemester = 'academic-semester',
+    offeredCourse = "offered-course",
+    semesterRegistration = "semester-registration",
+    courseRegistration = "course-registration",
+    course = "course",
 }
 
 export const tagTypeList = [
@@ -18,4 +22,8 @@ export const tagTypeList = [
     tagTypes.academicFaculty,
     tagTypes.academicDepartment,
     tagTypes.academicSemester,
+    tagTypes.offeredCourse,
+    tagTypes.semesterRegistration,
+    tagTypes.courseRegistration,
+    tagTypes.course
 ]
