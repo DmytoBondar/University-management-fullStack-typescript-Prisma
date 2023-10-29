@@ -125,3 +125,19 @@ export enum ExamType {
   FINAL = "FINAL",
   MIDTERM = "MIDTERM",
 }
+
+export const days = [
+    "SATURDAY",
+    "SUNDAY",
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+];
+export const daysOptions = days.map((day: string) => {
+    return {
+      label: day,
+      value: day,
+    };
+  });
