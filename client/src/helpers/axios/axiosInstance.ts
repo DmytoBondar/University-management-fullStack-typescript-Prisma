@@ -33,13 +33,15 @@ instance.interceptors.response.use(function (response) {
     }
     return responseObj;
 }, function (error) {
-    // Any status codes that falls outside the range of 2xx cause this function to trigger
-    // Do something with response error
-    const responseObject: IGenericErrorResponse = {
-        statusCode: error?.reponse?.statusCode || 500,
-        message: error?.response?.message || "Something went Wrong",
-        errorMessages: error?.response.message,
+    if (error?.response?.status === 403) {
+
+    } else {
+        const responseObject: IGenericErrorResponse = {
+            statusCode: error?.reponse?.statusCode || 500,
+            message: error?.response?.message || "Something went Wrong",
+            errorMessages: error?.response.message,
+        }
+        return responseObject;
     }
-    return responseObject;
     // return Promise.reject(error);
 });
